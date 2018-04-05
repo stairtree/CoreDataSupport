@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Utilities",
+        "repositoryURL": "git@gitlab.com:stairtree/frameworks/Utilities.git",
+        "state": {
+          "branch": null,
+          "revision": "659b4fe05cf2c10ea15b410934e5791ca880c8fd",
+          "version": "3.0.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
