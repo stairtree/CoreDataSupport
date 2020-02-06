@@ -111,6 +111,8 @@ extension Managed where Self: NSManagedObject {
     
     public static func materializedObject(in context: NSManagedObjectContext, matching predicate: NSPredicate) -> Self? {
         for object in context.registeredObjects where !object.isFault {
+            // We must not allow subclasses
+            guard type(of: object) is Self else { continue }
             guard let result = object as? Self, predicate.evaluate(with: result) else { continue }
             return result
         }
