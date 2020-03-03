@@ -85,16 +85,14 @@ extension Managed where Self: NSManagedObject {
     }
     
     
-    public static func findOrFetch(in context: NSManagedObjectContext, matching predicate: NSPredicate) -> Self? {
-        guard let object = materializedObject(in: context, matching: predicate) else {
-            return fetch(in: context) { request in
-                request.predicate = predicate
-                request.includesSubentities = false
-                request.returnsObjectsAsFaults = false
-                request.fetchLimit = 1
-                }.first
-        }
-        return object
+    public static func findOrFetch(in context: NSManagedObjectContext, matching predicate: NSPredicate, includingSubentities: Bool = false) -> Self? {
+        return materializedObject(in: context, matching: predicate, includingSubentities: includingSubentities) ??
+               fetch(in: context) { request in
+                   request.predicate = predicate
+                   request.includesSubentities = includingSubentities
+                   request.returnsObjectsAsFaults = false
+                   request.fetchLimit = 1
+               }.first
     }
     
     public static func fetch(in context: NSManagedObjectContext, configurationBlock: (NSFetchRequest<Self>) -> () = { _ in }) -> [Self] {
@@ -109,14 +107,12 @@ extension Managed where Self: NSManagedObject {
         return try! context.count(for: request)
     }
     
-    public static func materializedObject(in context: NSManagedObjectContext, matching predicate: NSPredicate) -> Self? {
-        for object in context.registeredObjects where !object.isFault {
-            // We do not allow subclasses here
-            guard type(of: object) == Self.self else { continue }
-            guard let result = object as? Self, predicate.evaluate(with: result) else { continue }
-            return result
-        }
-        return nil
+    public static func materializedObject(in context: NSManagedObjectContext, matching predicate: NSPredicate, includingSubentities: Bool = false) -> Self? {
+        return context.registeredObjects.first {
+            !$0.isFault &&
+            (includingSubentities || type(of: $0) == Self.self) &&
+            predicate.evaluate(with: $0)
+        } as? Self
     }
     
 }
