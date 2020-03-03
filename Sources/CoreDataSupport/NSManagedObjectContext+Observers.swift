@@ -114,6 +114,14 @@ public struct ObjectsDidChangeNotification {
         return (notification as Notification).userInfo?[NSInvalidatedAllObjectsKey] != nil
     }
     
+    public var wasMerge: Bool {
+        // N.B.: This key is not documented, it's used internally by Core Data
+        // for exactly this purpose (detecting merges to avoid model->view->model
+        // change notification loops). A different solution would be advisable
+        // when available.
+        return (notification.userInfo?[.init("NSObjectsChangedByMergeChangesKey")]) != nil
+    }
+    
     public var managedObjectContext: NSManagedObjectContext {
         guard let c = notification.object as? NSManagedObjectContext else { fatalError("Invalid notification object") }
         return c
