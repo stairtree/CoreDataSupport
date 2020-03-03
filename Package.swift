@@ -1,9 +1,12 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.2
 
 import PackageDescription
 
 let package = Package(
     name: "CoreDataSupport",
+    platforms: [
+        .macOS(.v10_13)
+    ],
     products: [
         .library(
             name: "CoreDataSupport",
