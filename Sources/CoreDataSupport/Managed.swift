@@ -64,13 +64,7 @@ extension Managed {
 extension Managed where Self: NSManagedObject {
     
     public static var entity: NSEntityDescription {
-        if #available(macOS 10.12, *) {
-            return entity()
-        } else {
-            // Fallback on earlier versions
-            let entity = NSEntityDescription(cls: Self.self, name: NSStringFromClass(Self.self))
-            return entity
-        }
+        return entity()
     }
     
     public static var entityName: String { return String(describing: self)/*entity.name!*/  }
