@@ -30,7 +30,6 @@ extension Managed {
     
     public static var defaultSortDescriptors: [NSSortDescriptor] { return [] }
     public static var defaultPredicate: NSPredicate { return NSPredicate(value: true) }
-    public static var defaultIncludesSubentities: Bool { return false }
     public static var defaultRelationshipKeyPathsForPrefetching: [String] { return [] }
     
     public static var sortedFetchRequest: NSFetchRequest<Self> {
@@ -79,11 +78,12 @@ extension Managed where Self: NSManagedObject {
     }
     
     
-    public static func findOrFetch(in context: NSManagedObjectContext, matching predicate: NSPredicate, includingSubentities: Bool = false) -> Self? {
-        return materializedObject(in: context, matching: predicate, includingSubentities: includingSubentities) ??
+    public static func findOrFetch(in context: NSManagedObjectContext, matching predicate: NSPredicate, includingSubentities: Bool? = nil) -> Self? {
+        let actuallyIncludingSubentities = includingSubentities ?? self.defaultIncludesSubentities
+        return materializedObject(in: context, matching: predicate, includingSubentities: actuallyIncludingSubentities) ??
                fetch(in: context) { request in
                    request.predicate = predicate
-                   request.includesSubentities = includingSubentities
+                   request.includesSubentities = actuallyIncludingSubentities
                    request.returnsObjectsAsFaults = false
                    request.fetchLimit = 1
                }.first
@@ -91,6 +91,7 @@ extension Managed where Self: NSManagedObject {
     
     public static func fetch(in context: NSManagedObjectContext, configurationBlock: (NSFetchRequest<Self>) -> () = { _ in }) -> [Self] {
         let request = NSFetchRequest<Self>(entityName: Self.entityName)
+        request.includesSubentities = Self.defaultIncludesSubentities
         configurationBlock(request)
         return try! context.fetch(request)
     }
