@@ -9,6 +9,14 @@
 import Foundation
 import CoreData
 
+extension Notification {
+
+    var saneUserInfo: [String: Any] {
+        return .init(uniqueKeysWithValues: (self.userInfo ?? [:]).map { ($0.key.description, $0.value) })
+    }
+
+}
+
 
 public struct ContextDidSaveNotification {
     
@@ -34,13 +42,14 @@ public struct ContextDidSaveNotification {
         return c
     }
     
+    public var userInfo: [String: Any] { self.notification.saneUserInfo }
     
     // MARK: Private
     
     fileprivate let notification: Notification
     
     fileprivate func iterator(forKey key: String) -> AnyIterator<NSManagedObject> {
-        guard let set = (notification as Notification).userInfo?[key] as? NSSet else {
+        guard let set = self.userInfo[key] as? NSSet else {
             return AnyIterator { nil }
         }
         var innerIterator = set.makeIterator()
@@ -75,13 +84,13 @@ public struct ContextWillSaveNotification {
         return c
     }
     
+    public var userInfo: [String: Any] { self.notification.saneUserInfo }
     
     // MARK: Private
     
     fileprivate let notification: Notification
     
 }
-
 
 public struct ObjectsDidChangeNotification {
     
@@ -111,7 +120,7 @@ public struct ObjectsDidChangeNotification {
     }
     
     public var invalidatedAllObjects: Bool {
-        return (notification as Notification).userInfo?[NSInvalidatedAllObjectsKey] != nil
+        return self.userInfo[NSInvalidatedAllObjectsKey] != nil
     }
     
     public var wasMerge: Bool {
@@ -119,7 +128,7 @@ public struct ObjectsDidChangeNotification {
         // for exactly this purpose (detecting merges to avoid model->view->model
         // change notification loops). A different solution would be advisable
         // when available.
-        return (notification.userInfo?[.init("NSObjectsChangedByMergeChangesKey")]) != nil
+        return self.userInfo["NSObjectsChangedByMergeChangesKey"] != nil
     }
     
     public var managedObjectContext: NSManagedObjectContext {
@@ -127,13 +136,14 @@ public struct ObjectsDidChangeNotification {
         return c
     }
     
+    public var userInfo: [String: Any] { self.notification.saneUserInfo }
     
     // MARK: Private
     
     fileprivate let notification: Notification
     
     fileprivate func objects(forKey key: String) -> Set<NSManagedObject> {
-        return ((notification as Notification).userInfo?[key] as? Set<NSManagedObject>) ?? Set()
+        return (self.userInfo[key] as? Set<NSManagedObject>) ?? Set()
     }
     
 }
