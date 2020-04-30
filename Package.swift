@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "CoreDataSupport",
     platforms: [
-        .macOS(.v10_13)
+        .macOS(.v10_14)
     ],
     products: [
         .library(
@@ -13,7 +13,7 @@ let package = Package(
             targets: ["CoreDataSupport"]),
     ],
     dependencies: [
-         .package(url: "git@gitlab.com:stairtree/frameworks/Utilities.git", from: "3.0.0"),
+         .package(url: "git@gitlab.com:stairtree/frameworks/Utilities.git", .branch("master")),
     ],
     targets: [
         .target(
