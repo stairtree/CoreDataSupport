@@ -1,5 +1,4 @@
 // swift-tools-version:5.2
-
 import PackageDescription
 
 let package = Package(
@@ -13,7 +12,7 @@ let package = Package(
             targets: ["CoreDataSupport"]),
     ],
     dependencies: [
-         .package(url: "git@gitlab.com:stairtree/frameworks/Utilities.git", .branch("master")),
+        .package(url: "git@gitlab.com:stairtree/frameworks/Utilities.git", .branch("master")),
     ],
     targets: [
         .target(
