@@ -1,13 +1,7 @@
-//
-//  Extensions.swift
-//  Moody
-//
 //  Created by Florian on 07/05/15.
 //  Copyright (c) 2015 objc.io. All rights reserved.
-//
 
 import CoreData
-
 
 extension NSManagedObjectContext {
     
@@ -63,12 +57,10 @@ extension NSManagedObjectContext {
             _ = self.saveOrRollback()
         }
     }
-    
 }
 
-
 private let SingleObjectCacheKey = "SingleObjectCache"
-private typealias SingleObjectCache = [String:NSManagedObject]
+private typealias SingleObjectCache = [String: NSManagedObject]
 
 extension NSManagedObjectContext {
     public func set(_ object: NSManagedObject?, forSingleObjectCacheKey key: String) {
@@ -78,8 +70,7 @@ extension NSManagedObjectContext {
     }
     
     public func object(forSingleObjectCacheKey key: String) -> NSManagedObject? {
-        guard let cache = userInfo[SingleObjectCacheKey] as? [String:NSManagedObject] else { return nil }
+        guard let cache = userInfo[SingleObjectCacheKey] as? [String: NSManagedObject] else { return nil }
         return cache[key]
     }
 }
-

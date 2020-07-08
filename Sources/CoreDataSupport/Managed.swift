@@ -1,13 +1,4 @@
-//
-//  ManagedObject.swift
-//  Moody
-//
-//  Created by Florian on 29/05/15.
-//  Copyright (c) 2015 objc.io. All rights reserved.
-//
-
 import CoreData
-
 
 public protocol Managed: AnyObject, NSFetchRequestResult {
     static var entity: NSEntityDescription { get }
@@ -19,18 +10,10 @@ public protocol Managed: AnyObject, NSFetchRequestResult {
     var managedObjectContext: NSManagedObjectContext? { get }
 }
 
-public protocol DefaultManaged: Managed {}
-
-extension DefaultManaged {
-    public static var defaultPredicate: NSPredicate { return NSPredicate(value: true) }
-}
-
-
 extension Managed {
-    
-    public static var defaultSortDescriptors: [NSSortDescriptor] { return [] }
-    public static var defaultPredicate: NSPredicate { return NSPredicate(value: true) }
-    public static var defaultRelationshipKeyPathsForPrefetching: [String] { return [] }
+    public static var defaultSortDescriptors: [NSSortDescriptor] { [] }
+    public static var defaultPredicate: NSPredicate { NSPredicate(value: true) }
+    public static var defaultRelationshipKeyPathsForPrefetching: [String] { [] }
     
     public static var sortedFetchRequest: NSFetchRequest<Self> {
         let request = NSFetchRequest<Self>(entityName: entityName)
@@ -59,14 +42,9 @@ extension Managed {
     
 }
 
-
 extension Managed where Self: NSManagedObject {
-    
-    public static var entity: NSEntityDescription {
-        return entity()
-    }
-    
-    public static var entityName: String { return String(describing: self)/*entity.name!*/  }
+    public static var entity: NSEntityDescription { entity() }
+    public static var entityName: String { entity.name!  }
     
     public static func findOrCreate(in context: NSManagedObjectContext, matching predicate: NSPredicate, configure: (Self) -> ()) -> Self {
         guard let object = findOrFetch(in: context, matching: predicate) else {
@@ -76,7 +54,6 @@ extension Managed where Self: NSManagedObject {
         }
         return object
     }
-    
     
     public static func findOrFetch(in context: NSManagedObjectContext, matching predicate: NSPredicate, includingSubentities: Bool? = nil) -> Self? {
         let actuallyIncludingSubentities = includingSubentities ?? self.defaultIncludesSubentities
@@ -109,11 +86,7 @@ extension Managed where Self: NSManagedObject {
             predicate.evaluate(with: $0)
         } as? Self
     }
-    
-}
 
-
-extension Managed where Self: NSManagedObject {
     public static func fetchSingleObject(in context: NSManagedObjectContext, cacheKey: String, configure: (NSFetchRequest<Self>) -> ()) -> Self? {
         if let cached = context.object(forSingleObjectCacheKey: cacheKey) as? Self { return cached
         }
@@ -134,5 +107,3 @@ extension Managed where Self: NSManagedObject {
         }
     }
 }
-
-

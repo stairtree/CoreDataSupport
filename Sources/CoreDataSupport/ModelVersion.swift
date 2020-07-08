@@ -1,13 +1,7 @@
-//
-//  ModelVersionType.swift
-//  Migrations
-//
 //  Created by Florian on 06/10/15.
 //  Copyright © 2015 objc.io. All rights reserved.
-//
 
 import CoreData
-
 
 public protocol ModelVersion: Equatable {
     static var all: [Self] { get }
@@ -18,7 +12,6 @@ public protocol ModelVersion: Equatable {
     var modelDirectoryName: String { get }
     func mappingModelsToSuccessor() -> [NSMappingModel]?
 }
-
 
 extension ModelVersion {
     

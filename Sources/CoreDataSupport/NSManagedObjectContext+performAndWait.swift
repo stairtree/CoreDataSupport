@@ -1,8 +1,3 @@
-//
-//  NSManagedObjectContext+performAndWait.swift
-//  CoreDataSupport
-//
-//  Created by Thomas Krajacic on 13.05.19.
 //  Courtesy of Ole Begemann
 //  See https://oleb.net/blog/2018/02/performandwait/
 

@@ -1,14 +1,11 @@
 //
 //  ManagedObjectChangeObserver.swift
 //  Moody
-//
 //  Created by Daniel Eggert on 15/05/2015.
 //  Copyright (c) 2015 objc.io. All rights reserved.
-//
 
 import Foundation
 import CoreData
-
 
 public final class ManagedObjectObserver {
     public enum ChangeType {

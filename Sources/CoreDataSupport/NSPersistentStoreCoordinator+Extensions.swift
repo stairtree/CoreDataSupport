@@ -1,16 +1,10 @@
-//
-//  NSPersistentStoreCoordinator+Extensions2.swift
-//  Migrations
-//
 //  Created by Florian on 06/10/15.
 //  Copyright © 2015 objc.io. All rights reserved.
-//
 
 import CoreData
 
 
 extension NSPersistentStoreCoordinator {
-    // TODO(swift3) Migrate thise to NSPersistentContainer
     public static func destroyStore(at url: URL) {
         if #available(OSX 10.11, *) {
             do {
@@ -26,7 +20,6 @@ extension NSPersistentStoreCoordinator {
         }
     }
     
-    // TODO(swift3) Migrate thise to NSPersistentContainer
     public static func replaceStore(at targetURL: URL, withStoreAt sourceURL: URL) throws {
         if #available(OSX 10.11, *) {
             let psc = self.init(managedObjectModel: NSManagedObjectModel())

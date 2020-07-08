@@ -4,20 +4,17 @@ import PackageDescription
 let package = Package(
     name: "CoreDataSupport",
     platforms: [
-        .macOS(.v10_14)
+        .macOS(.v10_14), .iOS(.v11), .watchOS(.v4), .tvOS(.v11)
     ],
     products: [
         .library(
             name: "CoreDataSupport",
             targets: ["CoreDataSupport"]),
     ],
-    dependencies: [
-        .package(url: "git@gitlab.com:stairtree/frameworks/Utilities.git", .branch("master")),
-    ],
+    dependencies: [],
     targets: [
         .target(
-            name: "CoreDataSupport",
-            dependencies: ["Utilities"]),
+            name: "CoreDataSupport"),
         .testTarget(
             name: "CoreDataSupportTests",
             dependencies: ["CoreDataSupport"]),

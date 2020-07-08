@@ -1,13 +1,7 @@
-//
-//  Migration.swift
-//  Migrations
-//
 //  Created by Florian on 06/10/15.
 //  Copyright © 2015 objc.io. All rights reserved.
-//
 
 import CoreData
-
 
 public func migrateStore<Version: ModelVersion>(from sourceURL: URL, to targetURL: URL, targetVersion: Version, deleteSource: Bool = false, progress: Progress? = nil) {
     guard let sourceVersion = Version(storeURL: sourceURL) else { fatalError("unknown store version at URL \(sourceURL)") }
@@ -53,4 +47,3 @@ public func migrateStore<Version: ModelVersion>(from sourceURL: URL, to targetUR
         NSPersistentStoreCoordinator.destroyStore(at: sourceURL)
     }
 }
-

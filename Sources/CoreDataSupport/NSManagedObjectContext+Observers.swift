@@ -1,11 +1,3 @@
-//
-//  Notifications.swift
-//  Moody
-//
-//  Created by Daniel Eggert on 24/05/2015.
-//  Copyright (c) 2015 objc.io. All rights reserved.
-//
-
 import Foundation
 import CoreData
 
@@ -14,9 +6,7 @@ extension Notification {
     var saneUserInfo: [String: Any] {
         return .init(uniqueKeysWithValues: (self.userInfo ?? [:]).map { ($0.key.description, $0.value) })
     }
-
 }
-
 
 public struct ContextDidSaveNotification {
     
@@ -55,9 +45,7 @@ public struct ContextDidSaveNotification {
         var innerIterator = set.makeIterator()
         return AnyIterator { return innerIterator.next() as? NSManagedObject }
     }
-    
 }
-
 
 extension ContextDidSaveNotification: CustomDebugStringConvertible {
     public var debugDescription: String {
@@ -89,7 +77,6 @@ public struct ContextWillSaveNotification {
     // MARK: Private
     
     fileprivate let notification: Notification
-    
 }
 
 public struct ObjectsDidChangeNotification {
@@ -145,9 +132,7 @@ public struct ObjectsDidChangeNotification {
     fileprivate func objects(forKey key: String) -> Set<NSManagedObject> {
         return (self.userInfo[key] as? Set<NSManagedObject>) ?? Set()
     }
-    
 }
-
 
 extension NSManagedObjectContext {
     
@@ -186,7 +171,4 @@ extension NSManagedObjectContext {
             self.mergeChanges(fromContextDidSave: note.notification)
         }
     }
-    
 }
-
-

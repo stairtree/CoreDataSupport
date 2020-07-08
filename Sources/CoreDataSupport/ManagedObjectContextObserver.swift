@@ -1,10 +1,5 @@
-//
-//  File.swift
-//  CoreDataSupport
-//
 //  Created by Thomas Krajacic on 25.09.16.
 //  Copyright © 2016 Thomas Krajacic. All rights reserved.
-//
 
 import Foundation
 import CoreData

@@ -1,5 +1,4 @@
 import CoreData
-import Utilities
 
 /// A `ValueTransformer` which accepts a generic type `T` as input that must be
 /// both `AnyObject` and `Codable` (checked at runtime) and uses binary plist

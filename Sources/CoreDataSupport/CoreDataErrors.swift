@@ -1,10 +1,5 @@
-//
-//  CoreDataErrors.swift
-//  Saving
-//
 //  Created by Florian on 24/08/15.
 //  Copyright © 2015 objc.io. All rights reserved.
-//
 
 import CoreData
 
