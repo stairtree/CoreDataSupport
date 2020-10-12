@@ -1,5 +1,15 @@
-//  Created by Florian on 07/05/15.
-//  Copyright (c) 2015 objc.io. All rights reserved.
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Core Data Support open source project
+//
+// Copyright (c) Stairtree GmbH
+// Licensed under the MIT license
+//
+// See LICENSE.txt and LICENSE.objc.io.txt for license information
+//
+// SPDX-License-Identifier: MIT
+//
+//===----------------------------------------------------------------------===//
 
 import CoreData
 

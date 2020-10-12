@@ -1,9 +1,17 @@
-//  Created by Thomas Krajacic on 25.09.16.
-//  Copyright © 2016 Thomas Krajacic. All rights reserved.
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Core Data Support open source project
+//
+// Copyright (c) Stairtree GmbH
+// Licensed under the MIT license
+//
+// See LICENSE.txt and LICENSE.objc.io.txt for license information
+//
+// SPDX-License-Identifier: MIT
+//
+//===----------------------------------------------------------------------===//
 
-import Foundation
 import CoreData
-
 
 public final class ManagedObjectContextObserver {
     public enum ChangeType {
@@ -12,22 +20,25 @@ public final class ManagedObjectContextObserver {
         case didSave(ContextDidSaveNotification)
     }
     
-    public init?(moc: NSManagedObjectContext, changeHandler: @escaping (ChangeType) -> ()) {
-        contextdidChangeToken = moc.addObjectsDidChangeNotificationObserver { note in
+    private let notificationCenter: NotificationCenter
+    
+    public init?(moc: NSManagedObjectContext, notificationCenter nc: NotificationCenter = .default, changeHandler: @escaping (ChangeType) -> ()) {
+        self.notificationCenter = nc
+        contextdidChangeToken = moc.addObjectsDidChangeNotificationObserver(to: nc) { note in
             changeHandler(.didChange(note))
         }
-        contextwillSaveToken = moc.addContextWillSaveNotificationObserver { note in
+        contextwillSaveToken = moc.addContextWillSaveNotificationObserver(to: nc) { note in
             changeHandler(.willSave(note))
         }
-        contextdidSaveToken = moc.addContextDidSaveNotificationObserver { note in
+        contextdidSaveToken = moc.addContextDidSaveNotificationObserver(to: nc) { note in
             changeHandler(.didSave(note))
         }
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(contextdidChangeToken as Any)
-        NotificationCenter.default.removeObserver(contextwillSaveToken as Any)
-        NotificationCenter.default.removeObserver(contextdidSaveToken as Any)
+        contextdidChangeToken.map { notificationCenter.removeObserver($0) }
+        contextwillSaveToken.map { notificationCenter.removeObserver($0) }
+        contextdidSaveToken.map { notificationCenter.removeObserver($0) }
     }
     
     // MARK: Private

@@ -1,10 +1,16 @@
+//===----------------------------------------------------------------------===//
 //
-//  ManagedObjectChangeObserver.swift
-//  Moody
-//  Created by Daniel Eggert on 15/05/2015.
-//  Copyright (c) 2015 objc.io. All rights reserved.
+// This source file is part of the Core Data Support open source project
+//
+// Copyright (c) Stairtree GmbH
+// Licensed under the MIT license
+//
+// See LICENSE.txt and LICENSE.objc.io.txt for license information
+//
+// SPDX-License-Identifier: MIT
+//
+//===----------------------------------------------------------------------===//
 
-import Foundation
 import CoreData
 
 public final class ManagedObjectObserver {
@@ -13,10 +19,13 @@ public final class ManagedObjectObserver {
         case update
     }
     
-    public init?(object: Managed, changeHandler: @escaping (ChangeType) -> ()) {
+    private let notificationCenter: NotificationCenter
+    
+    public init?(object: Managed, notificationCenter nc: NotificationCenter = .default, changeHandler: @escaping (ChangeType) -> ()) {
         guard let moc = object.managedObjectContext else { return nil }
+        self.notificationCenter = nc
         objectHasBeenDeleted = !type(of: object).defaultPredicate.evaluate(with: object)
-        token = moc.addObjectsDidChangeNotificationObserver { [unowned self] note in
+        token = moc.addObjectsDidChangeNotificationObserver(to: nc) { [unowned self] note in
             guard let changeType = self.changeType(of: object, in: note) else { return }
             self.objectHasBeenDeleted = changeType == .delete
             changeHandler(changeType)
@@ -24,9 +33,8 @@ public final class ManagedObjectObserver {
     }
     
     deinit {
-        NotificationCenter.default.removeObserver(token as Any)
+        token.map { notificationCenter.removeObserver($0) }
     }
-    
     
     // MARK: Private
     
@@ -35,11 +43,11 @@ public final class ManagedObjectObserver {
     
     fileprivate func changeType(of object: Managed, in note: ObjectsDidChangeNotification) -> ChangeType? {
         let deleted = note.deletedObjects.union(note.invalidatedObjects)
-        if note.invalidatedAllObjects || deleted.containsObjectIdentical(to: object) {
+        if note.invalidatedAllObjects || deleted.contains(where: { $0 === object }) {
             return .delete
         }
         let updated = note.updatedObjects.union(note.refreshedObjects)
-        if updated.containsObjectIdentical(to: object) {
+        if updated.contains(where: { $0 === object }) {
             let predicate = type(of: object).defaultPredicate
             if predicate.evaluate(with: object) {
                 return .update
@@ -50,4 +58,3 @@ public final class ManagedObjectObserver {
         return nil
     }
 }
-

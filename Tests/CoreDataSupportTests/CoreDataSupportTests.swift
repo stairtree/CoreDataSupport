@@ -83,7 +83,6 @@ internal func SolarSystemManagedObjectModel() -> NSManagedObjectModel {
         // [MOPlanet] <-> [MOTag]
         $0.relate(many: MOTag.self, "planets", toMany: MOPlanet.self, "tags")
     }
-
 }
 
 extension XCTestCase {
@@ -96,7 +95,6 @@ extension XCTestCase {
             .replacingOccurrences(of: "]", with: "")
         
     }
-
 }
 
 final class TestPersistentContainer: NSPersistentContainer {
@@ -135,7 +133,6 @@ final class TestPersistentContainer: NSPersistentContainer {
         }
         return container
     }
-
 }
 
 final class CoreDataSupportTests: XCTestCase {
@@ -151,5 +148,4 @@ final class CoreDataSupportTests: XCTestCase {
         XCTAssertNoThrow(try container.viewContext.save())
         
     }
-
 }

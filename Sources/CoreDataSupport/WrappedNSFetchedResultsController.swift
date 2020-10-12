@@ -1,4 +1,16 @@
-// Copyright © Stairtree GmbH. All rights reserved.
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Core Data Support open source project
+//
+// Copyright (c) Stairtree GmbH
+// Licensed under the MIT license
+//
+// See LICENSE.txt and LICENSE.objc.io.txt for license information
+//
+// SPDX-License-Identifier: MIT
+//
+//===----------------------------------------------------------------------===//
+
 #if os(macOS)
 
 import AppKit

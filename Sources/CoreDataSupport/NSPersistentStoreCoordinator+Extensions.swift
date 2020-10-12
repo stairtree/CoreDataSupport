@@ -1,33 +1,32 @@
-//  Created by Florian on 06/10/15.
-//  Copyright © 2015 objc.io. All rights reserved.
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Core Data Support open source project
+//
+// Copyright (c) Stairtree GmbH
+// Licensed under the MIT license
+//
+// See LICENSE.txt and LICENSE.objc.io.txt for license information
+//
+// SPDX-License-Identifier: MIT
+//
+//===----------------------------------------------------------------------===//
 
 import CoreData
-
+import Logging
 
 extension NSPersistentStoreCoordinator {
     public static func destroyStore(at url: URL) {
-        if #available(OSX 10.11, *) {
-            do {
-                let psc = self.init(managedObjectModel: NSManagedObjectModel())
-                try psc.destroyPersistentStore(at: url, ofType: NSSQLiteStoreType, options: nil)
-                
-            } catch let e {
-                print("failed to destroy persistent store at \(url)", e)
-            }
-        } else {
-            // Fallback on earlier versions
-            fatalError("Unimplemented for macOS < 10.11")
+        do {
+            let psc = self.init(managedObjectModel: NSManagedObjectModel())
+            try psc.destroyPersistentStore(at: url, ofType: NSSQLiteStoreType, options: nil)
+        } catch {
+            Logger(label: "Core Data").warning("failed to destroy persistent store at \(url): \(error)")
         }
     }
     
     public static func replaceStore(at targetURL: URL, withStoreAt sourceURL: URL) throws {
-        if #available(OSX 10.11, *) {
-            let psc = self.init(managedObjectModel: NSManagedObjectModel())
-            try psc.replacePersistentStore(at: targetURL, destinationOptions: nil, withPersistentStoreFrom: sourceURL, sourceOptions: nil, ofType: NSSQLiteStoreType)
-        } else {
-            // Fallback on earlier versions
-            fatalError("Unimplemented for macOS < 10.11")
-        }
+        let psc = self.init(managedObjectModel: NSManagedObjectModel())
+        try psc.replacePersistentStore(at: targetURL, destinationOptions: nil, withPersistentStoreFrom: sourceURL, sourceOptions: nil, ofType: NSSQLiteStoreType)
     }
 }
 

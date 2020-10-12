@@ -1,39 +1,33 @@
-//  Courtesy of Ole Begemann
-//  See https://oleb.net/blog/2018/02/performandwait/
+//===----------------------------------------------------------------------===//
+//
+// This source file is part of the Core Data Support open source project
+//
+// Copyright (c) Stairtree GmbH
+// Licensed under the MIT license
+//
+// See LICENSE.txt and LICENSE.objc.io.txt for license information
+//
+// SPDX-License-Identifier: MIT
+//
+//===----------------------------------------------------------------------===//
 
 import CoreData
 
+//  See https://oleb.net/blog/2018/02/performandwait/
 extension NSManagedObjectContext {
-    public func performAndWait<T>(_ block: () throws -> T) rethrows -> T {
-        return try _performAndWaitHelper(
-            fn: performAndWait, execute: block, rescue: { throw $0 }
-        )
+    func performAndWait<T>(_ block: () throws -> T) throws -> T {
+        var result: Result<T, Error>?
+        performAndWait {
+            result = Result { try block() }
+        }
+        return try result!.get()
     }
 
-    /// Helper function for convincing the type checker that
-    /// the rethrows invariant holds for performAndWait.
-    ///
-    /// Source: https://github.com/apple/swift/blob/bb157a070ec6534e4b534456d208b03adc07704b/stdlib/public/SDK/Dispatch/Queue.swift#L228-L249
-    private func _performAndWaitHelper<T>(
-        fn: (() -> Void) -> Void,
-        execute work: () throws -> T,
-        rescue: ((Error) throws -> (T))) rethrows -> T
-    {
+    func performAndWait<T>(_ block: () -> T) -> T {
         var result: T?
-        var error: Error?
-        withoutActuallyEscaping(work) { _work in
-            fn {
-                do {
-                    result = try _work()
-                } catch let e {
-                    error = e
-                }
-            }
+        performAndWait {
+            result = block()
         }
-        if let e = error {
-            return try rescue(e)
-        } else {
-            return result!
-        }
+        return result!
     }
 }
