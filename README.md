@@ -26,7 +26,7 @@ To integrate the package:
 
 ```swift
 dependencies: [
-.package(url: "https://github.com/stairtree/CoreDataSupport.git", .branch("main"))
+    .package(url: "https://github.com/stairtree/CoreDataSupport.git", .branch("main"))
 ]
 ```
 
