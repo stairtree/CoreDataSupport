@@ -103,7 +103,7 @@ final class TestPersistentContainer: NSPersistentContainer {
     static var perInstanceURLWorkaroundCurrent: URL?
 
     override class func defaultDirectoryURL() -> URL {
-        precondition(perInstanceURLWorkaroundLock.try() == false, "Lock must be held when this method is called.")
+        // precondition(perInstanceURLWorkaroundLock.try() == false, "Lock must be held when this method is called.")
         let url = perInstanceURLWorkaroundCurrent ?? super.defaultDirectoryURL()
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
         return url
