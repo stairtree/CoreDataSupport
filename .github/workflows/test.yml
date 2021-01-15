@@ -1,0 +1,36 @@
+name: test
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  appleos:
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode:
+          - latest
+          - latest-stable
+        platform:
+          - runner: macos-latest
+            destination: 'platform=macOS,arch=x86_64'
+          - runner: macos-11.0
+            destination: 'platform=macOS,arch=x86_64'
+          #- runner: macos-11.0
+          #  destination: 'platform=macOS,arch=arm64'
+          - runner: macos-latest
+            destination: 'platform=iOS Simulator,OS=latest,name=iPhone 11 Pro'
+          - runner: macos-latest
+            destination: 'platform=tvOS Simulator,OS=latest,name=Apple TV 4K'
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+    - name: Select latest available Xcode
+      uses: maxim-lobanov/setup-xcode@v1.2.1
+      with:
+        xcode-version: ${{ matrix.xcode }}
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Run tests for ${{ matrix.platform.destination }}
+      run: xcodebuild test -scheme CoreDataSupport -enableThreadSanitizer YES -destination '${{ matrix.platform.destination }}'
