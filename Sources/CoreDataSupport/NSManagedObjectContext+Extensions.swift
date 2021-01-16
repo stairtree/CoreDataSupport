@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import CoreData
+import Logging
 
 extension NSManagedObjectContext {
     
@@ -50,6 +51,7 @@ extension NSManagedObjectContext {
             try save()
             return true
         } catch {
+            Logger(label: "Core Data").warning("Failed to save context\(name.map { " '\($0)'" } ?? ""): \(error)")
             rollback()
             return false
         }

@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 import CoreData
+import Logging
 
 /// A `ValueTransformer` which accepts a generic type `T` as input that must be
 /// both `AnyObject` and `Codable` (checked at runtime) and uses binary plist
@@ -76,8 +77,10 @@ public enum AttributeConstraint<T> {
 public class EntityBuilder {
     
     fileprivate var entity: NSEntityDescription
+    fileprivate let logger: Logger
     
-    fileprivate init(type: NSManagedObject.Type, name: String? = nil) {
+    fileprivate init(type: NSManagedObject.Type, name: String? = nil, logger: Logger = Logger(label: "EntityBuilder")) {
+        self.logger = logger
         self.entity = NSEntityDescription()
         self.entity.managedObjectClassName = NSStringFromClass(type)
         self.entity.name = name ?? self.entity.managedObjectClassName
@@ -112,7 +115,7 @@ public class EntityBuilder {
             case is (Codable & AnyObject).Type:
                 self.appendAttribute(name: name, type: .transformableAttributeType, transformer: CodableDataTransformer<T>.make(), constraints: constraints)
             default:
-                print("Warning: Using undefined attribute type for indeterminate Swift type \(T.self)")
+                logger.warning("Using undefined attribute type for indeterminate Swift type \(T.self)")
                 self.appendAttribute(name: name, type: .undefinedAttributeType, constraints: constraints)
         }
         return self

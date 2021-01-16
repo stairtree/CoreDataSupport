@@ -12,8 +12,9 @@
 //===----------------------------------------------------------------------===//
 
 import CoreData
+import Logging
 
-public func migrateStore<Version: ModelVersion>(from sourceURL: URL, to targetURL: URL, targetVersion: Version, deleteSource: Bool = false, progress: Progress? = nil) {
+public func migrateStore<Version: ModelVersion>(from sourceURL: URL, to targetURL: URL, targetVersion: Version, deleteSource: Bool = false, progress: Progress? = nil, logger: Logger = Logger(label: "Core Data")) {
     guard let sourceVersion = Version(storeURL: sourceURL) else { fatalError("unknown store version at URL \(sourceURL)") }
     var currentURL = sourceURL
     let migrationSteps = sourceVersion.migrationSteps(to: targetVersion)
@@ -41,8 +42,8 @@ public func migrateStore<Version: ModelVersion>(from sourceURL: URL, to targetUR
                                          toDestinationURL: destinationURL,
                                          destinationType: NSSQLiteStoreType,
                                          destinationOptions: nil)
-            } catch let e {
-                print(e)
+            } catch {
+                logger.error("Failed to migrate store from \(currentURL.absoluteString) to \(destinationURL.absoluteString): \(error)")
             }
         }
         if currentURL != sourceURL {

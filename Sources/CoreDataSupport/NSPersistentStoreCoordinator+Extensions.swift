@@ -20,7 +20,7 @@ extension NSPersistentStoreCoordinator {
             let psc = self.init(managedObjectModel: NSManagedObjectModel())
             try psc.destroyPersistentStore(at: url, ofType: NSSQLiteStoreType, options: nil)
         } catch {
-            Logger(label: "Core Data").warning("failed to destroy persistent store at \(url): \(error)")
+            Logger(label: "Core Data").warning("Failed to destroy persistent store at \(url): \(error)")
         }
     }
     
