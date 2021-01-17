@@ -11,7 +11,7 @@
 </a>
 
 
-Common helpers and idioms for making working with Core Data in Swift better. 
+Common helpers and idioms for working with Core Data in Swift. 
 
 ### Supported Platforms
 
