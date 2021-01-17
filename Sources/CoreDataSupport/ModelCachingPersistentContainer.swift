@@ -14,7 +14,7 @@
 import CoreData
 
 /// A subclass of `NSPersistentContainer` that prevents loading the managed object model multiple times by caching it.
-public final class ModelCachingPersistentContainer: NSPersistentContainer {
+open class ModelCachingPersistentContainer: NSPersistentContainer {
     private static var _model: NSManagedObjectModel?
     
     private static func loadModel(name: String, bundle: Bundle) throws -> NSManagedObjectModel {
