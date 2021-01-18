@@ -69,6 +69,43 @@ extension ContextDidSaveNotification: CustomDebugStringConvertible {
     }
 }
 
+public struct ContextDidSaveObjectIDsNotification {
+    public init(note: Notification) {
+        assert(note.name == .NSManagedObjectContextDidSaveObjectIDs)
+        notification = note
+    }
+    
+    public var insertedObjectIDs: Set<NSManagedObjectID> {
+        objects(forKey: NSInsertedObjectIDsKey)
+    }
+    
+    public var updatedObjectIDs: Set<NSManagedObjectID> {
+        objects(forKey: NSUpdatedObjectIDsKey)
+    }
+    
+    public var deletedObjectIDs: Set<NSManagedObjectID> {
+        objects(forKey: NSDeletedObjectIDsKey)
+    }
+    
+    public var refreshedObjectIDs: Set<NSManagedObjectID> {
+        objects(forKey: NSRefreshedObjectIDsKey)
+    }
+    
+    public var invalidatedObjectIDs: Set<NSManagedObjectID> {
+        objects(forKey: NSInvalidatedObjectIDsKey)
+    }
+    
+    public var userInfo: [String: Any] { self.notification.sanitizedUserInfo }
+    
+    // MARK: Private
+    
+    fileprivate let notification: Notification
+    
+    fileprivate func objects(forKey key: String) -> Set<NSManagedObjectID> {
+        return (self.userInfo[key] as? Set<NSManagedObjectID>) ?? Set()
+    }
+}
+
 
 public struct ContextWillSaveNotification {
     public init(note: Notification) {
@@ -118,6 +155,10 @@ public struct ObjectsDidChangeNotification {
         self.userInfo[NSInvalidatedAllObjectsKey] != nil
     }
     
+    public var queryGenerationToken: NSQueryGenerationToken? {
+        self.userInfo[NSManagedObjectContextQueryGenerationKey] as? NSQueryGenerationToken
+    }
+    
     public var wasMerge: Bool {
         // N.B.: This key is not documented, it's used internally by Core Data
         // for exactly this purpose (detecting merges to avoid model->view->model
@@ -149,6 +190,15 @@ extension NSManagedObjectContext {
     public func addContextDidSaveNotificationObserver(to nc: NotificationCenter = .default, _ handler: @escaping (ContextDidSaveNotification) -> ()) -> NSObjectProtocol {
         return nc.addObserver(forName: .NSManagedObjectContextDidSave, object: self, queue: nil) { note in
             let wrappedNote = ContextDidSaveNotification(note: note)
+            handler(wrappedNote)
+        }
+    }
+    
+    /// Adds the given block to the given `NotificationCenter`'s dispatch table for the given context's did-save-object-IDs notifications.
+    /// - returns: An opaque object to act as the observer. This must be sent to the given `NotificationCenter`'s `removeObserver()`.
+    public func addContextDidSaveObjectIDsNotificationObserver(to nc: NotificationCenter = .default, _ handler: @escaping (ContextDidSaveObjectIDsNotification) -> ()) -> NSObjectProtocol {
+        return nc.addObserver(forName: .NSManagedObjectContextDidSaveObjectIDs, object: self, queue: nil) { note in
+            let wrappedNote = ContextDidSaveObjectIDsNotification(note: note)
             handler(wrappedNote)
         }
     }

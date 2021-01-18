@@ -18,6 +18,7 @@ public final class ManagedObjectContextObserver {
         case didChange(ObjectsDidChangeNotification)
         case willSave(ContextWillSaveNotification)
         case didSave(ContextDidSaveNotification)
+        case didSaveObjectIDs(ContextDidSaveObjectIDsNotification)
     }
     
     private let notificationCenter: NotificationCenter
@@ -33,12 +34,16 @@ public final class ManagedObjectContextObserver {
         contextdidSaveToken = moc.addContextDidSaveNotificationObserver(to: nc) { note in
             changeHandler(.didSave(note))
         }
+        contextdidSaveObjectIDsToken = moc.addContextDidSaveObjectIDsNotificationObserver(to: nc) { note in
+            changeHandler(.didSaveObjectIDs(note))
+        }
     }
     
     deinit {
         contextdidChangeToken.map { notificationCenter.removeObserver($0) }
         contextwillSaveToken.map { notificationCenter.removeObserver($0) }
         contextdidSaveToken.map { notificationCenter.removeObserver($0) }
+        contextdidSaveObjectIDsToken.map { notificationCenter.removeObserver($0) }
     }
     
     // MARK: Private
@@ -46,5 +51,6 @@ public final class ManagedObjectContextObserver {
     fileprivate var contextdidChangeToken : NSObjectProtocol!
     fileprivate var contextwillSaveToken : NSObjectProtocol!
     fileprivate var contextdidSaveToken : NSObjectProtocol!
-    
+    fileprivate var contextdidSaveObjectIDsToken : NSObjectProtocol!
+
 }

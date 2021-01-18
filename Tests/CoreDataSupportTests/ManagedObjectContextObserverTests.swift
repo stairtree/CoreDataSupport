@@ -15,7 +15,8 @@ final class ManagedObjectContextObserverTests: XCTestCase {
         let didChangeExpectation = expectation(description: "didChange")
         let willSaveExpectation = expectation(description: "willSave")
         let didSaveExpectation = expectation(description: "didSave")
-        
+        let didSaveObjectIDsExpectation = expectation(description: "didSaveObjectIDs")
+
         observer = ManagedObjectContextObserver(moc: container.viewContext) { change in
             switch change {
             case .didChange(let note):
@@ -26,6 +27,8 @@ final class ManagedObjectContextObserverTests: XCTestCase {
                 willSaveExpectation.fulfill()
             case .didSave(_):
                 didSaveExpectation.fulfill()
+            case .didSaveObjectIDs(_):
+                didSaveObjectIDsExpectation.fulfill()
             }
         }
         
@@ -35,7 +38,7 @@ final class ManagedObjectContextObserverTests: XCTestCase {
         
         try container.viewContext.save()
         
-        wait(for: [didChangeExpectation, willSaveExpectation, didSaveExpectation], timeout: 3)
+        wait(for: [didChangeExpectation, willSaveExpectation, didSaveExpectation, didSaveObjectIDsExpectation], timeout: 3)
         
         let didChangeExpectation2 = expectation(description: "didChange2")
         
@@ -48,6 +51,8 @@ final class ManagedObjectContextObserverTests: XCTestCase {
             case .willSave(_):
                 XCTFail()
             case .didSave(_):
+                XCTFail()
+            case .didSaveObjectIDs(_):
                 XCTFail()
             }
         }
