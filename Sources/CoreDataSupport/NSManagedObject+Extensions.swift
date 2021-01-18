@@ -14,7 +14,7 @@
 import CoreData
 
 extension NSManagedObject {
-    public func refresh(_ mergeChanges: Bool = true) {
+    public func refresh(mergeChanges: Bool = true) {
         managedObjectContext?.refresh(self, mergeChanges: mergeChanges)
     }
 }
