@@ -22,7 +22,7 @@ public protocol FetchedResultsControllerDelegate: AnyObject {
     func didChangeContent<T>(_ controller: WrappedNSFetchedResultsController<T>)
 }
 
-public final class WrappedNSFetchedResultsController<EntityType: Managed>: NSObject, NSFetchedResultsControllerDelegate {
+public final class WrappedNSFetchedResultsController<EntityType: NSFetchRequestResult>: NSObject, NSFetchedResultsControllerDelegate {
 
     public enum ChangeType {
         case insert(object: EntityType, atIndex: Int)
