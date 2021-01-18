@@ -22,7 +22,7 @@ public protocol FetchedResultsControllerDelegate: AnyObject {
     func didChangeContent<T>(_ controller: WrappedNSFetchedResultsController<T>)
 }
 
-public final class WrappedNSFetchedResultsController<EntityType: NSFetchRequestResult>: NSObject, NSFetchedResultsControllerDelegate {
+public class WrappedNSFetchedResultsController<EntityType: NSFetchRequestResult>: NSObject, NSFetchedResultsControllerDelegate {
 
     public enum ChangeType {
         case insert(object: EntityType, atIndex: Int)
@@ -33,8 +33,8 @@ public final class WrappedNSFetchedResultsController<EntityType: NSFetchRequestR
 
     private let realController: NSFetchedResultsController<EntityType>
     
-    public init(managedObjectContext: NSManagedObjectContext, fetchRequest: NSFetchRequest<EntityType>) {
-        self.realController = .init(fetchRequest: fetchRequest, managedObjectContext: managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
+    public init(managedObjectContext: NSManagedObjectContext, fetchRequest: NSFetchRequest<EntityType>, sectionNameKeyPath: String? = nil, cacheName: String? = nil) {
+        self.realController = .init(fetchRequest: fetchRequest, managedObjectContext: managedObjectContext, sectionNameKeyPath: sectionNameKeyPath, cacheName: cacheName)
         super.init()
         self.realController.delegate = self
     }
