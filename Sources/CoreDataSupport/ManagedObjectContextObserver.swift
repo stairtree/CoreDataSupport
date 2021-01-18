@@ -22,7 +22,7 @@ public final class ManagedObjectContextObserver {
     
     private let notificationCenter: NotificationCenter
     
-    public init?(moc: NSManagedObjectContext, notificationCenter nc: NotificationCenter = .default, changeHandler: @escaping (ChangeType) -> ()) {
+    public init(moc: NSManagedObjectContext, notificationCenter nc: NotificationCenter = .default, changeHandler: @escaping (ChangeType) -> ()) {
         self.notificationCenter = nc
         contextdidChangeToken = moc.addObjectsDidChangeNotificationObserver(to: nc) { note in
             changeHandler(.didChange(note))
