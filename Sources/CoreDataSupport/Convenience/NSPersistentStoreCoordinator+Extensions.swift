@@ -15,12 +15,15 @@ import CoreData
 import Logging
 
 extension NSPersistentStoreCoordinator {
-    public static func destroyStore(at url: URL) {
+    @discardableResult
+    public static func destroyStore(at url: URL) -> Bool {
         do {
             let psc = self.init(managedObjectModel: NSManagedObjectModel())
             try psc.destroyPersistentStore(at: url, ofType: NSSQLiteStoreType, options: nil)
+            return true
         } catch {
             Logger(label: "Core Data").warning("Failed to destroy persistent store at \(url): \(error)")
+            return false
         }
     }
     

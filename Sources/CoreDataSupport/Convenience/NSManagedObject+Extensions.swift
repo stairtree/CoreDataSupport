@@ -12,10 +12,32 @@
 //===----------------------------------------------------------------------===//
 
 import CoreData
+import Logging
 
 extension NSManagedObject {
     public func refresh(mergeChanges: Bool = true) {
         managedObjectContext?.refresh(self, mergeChanges: mergeChanges)
+    }
+    
+    public func remapped(to context: NSManagedObjectContext) -> Self? {
+        guard let fromContext = managedObjectContext else { return nil }
+        guard fromContext !== context else { return self }
+        
+        if objectID.isTemporaryID {
+            do { try fromContext.obtainPermanentIDs(for: [self]) }
+            catch {
+                Logger(label: "Core Data").error("Failed to obtain permanent object ID: \(error)")
+                return nil
+            }
+        }
+        
+        do {
+            let objectInTargetContext = try context.existingObject(with: objectID) as? Self
+            return objectInTargetContext
+        } catch {
+            Logger(label: "Core Data").error("Failed to fetch existing object: \(error)")
+            return nil
+        }
     }
 }
 
@@ -29,7 +51,7 @@ extension NSManagedObject {
 }
 
 extension Sequence where Iterator.Element: NSManagedObject {
-    public func remap(to context: NSManagedObjectContext) -> [Iterator.Element] {
+    public func remapped(to context: NSManagedObjectContext) -> [Iterator.Element] {
         return map { unmappedMO in
             guard unmappedMO.managedObjectContext !== context else { return unmappedMO }
             guard let object = context.object(with: unmappedMO.objectID) as? Iterator.Element else { fatalError("Invalid object type") }
