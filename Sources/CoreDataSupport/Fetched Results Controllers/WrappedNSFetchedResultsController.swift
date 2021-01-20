@@ -11,9 +11,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if os(macOS)
-
-import AppKit
 import CoreData
 
 public protocol FetchedResultsControllerDelegate: AnyObject {
@@ -104,5 +101,3 @@ public class WrappedNSFetchedResultsController<EntityType: NSFetchRequestResult>
         self.delegate?.didChangeContent(self)
     }
 }
-
-#endif
