@@ -38,27 +38,28 @@ final class ManagedObjectContextObserverTests: XCTestCase {
         
         try container.viewContext.save()
         
-        wait(for: [didChangeExpectation, willSaveExpectation, didSaveExpectation, didSaveObjectIDsExpectation], timeout: 3)
-        
-        let didChangeExpectation2 = expectation(description: "didChange2")
-        
-        observer = ManagedObjectContextObserver(moc: container.viewContext) { change in
-            switch change {
-            case .didChange(let note):
-                XCTAssertTrue(note.updatedObjects.contains(galaxy))
-                XCTAssertNotNil(galaxy.changedValue(forKey: "appendix"))
-                didChangeExpectation2.fulfill()
-            case .willSave(_):
-                XCTFail()
-            case .didSave(_):
-                XCTFail()
-            case .didSaveObjectIDs(_):
-                XCTFail()
-            }
+        waitForExpectations(timeout: 3, handler: nil)
+                
+        observer = expectDidChange(in: container.viewContext) { note in
+            XCTAssertTrue(note.updatedObjects.contains(galaxy))
+            XCTAssertNotNil(galaxy.changedValue(forKey: "appendix"))
         }
         
         galaxy.appendix = .init("An appendix to The Galaxy. Why not?")
         
-        wait(for: [didChangeExpectation2], timeout: 3)
+        waitForExpectations(timeout: 3, handler: nil)
+    }
+}
+
+extension XCTestCase {
+
+    func expectDidChange(in context: NSManagedObjectContext, _ expect: @escaping (ObjectsDidChangeNotification) -> Void) -> ManagedObjectContextObserver {
+        let e = expectation(description: "didChange")
+        return ManagedObjectContextObserver(moc: context) { change in
+            if case let .didChange(note) = change {
+                expect(note)
+                e.fulfill()
+            }
+        }
     }
 }
