@@ -209,6 +209,7 @@ public struct ManagedObjectModelBuilder {
         fromRelation.deleteRule = .nullifyDeleteRule
         fromRelation.inverseRelationship = toRelation
         if (toMany) { fromRelation.minCount = 0; fromRelation.maxCount = Int.max }
+        else { fromRelation.minCount = 1; fromRelation.maxCount = 1 }
         if (ordered) { fromRelation.isOrdered = true }
         
         toRelation.name = bName
@@ -216,6 +217,7 @@ public struct ManagedObjectModelBuilder {
         toRelation.deleteRule = .nullifyDeleteRule
         toRelation.inverseRelationship = fromRelation
         if (fromMany) { toRelation.minCount = 0; toRelation.maxCount = Int.max }
+        else { toRelation.minCount = 1; toRelation.maxCount = 1 }
         
         fromEntity.properties.append(fromRelation)
         toEntity.properties.append(toRelation)
