@@ -81,7 +81,7 @@ extension NSManagedObjectContext {
 // See https://oleb.net/blog/2018/02/performandwait/
 extension NSManagedObjectContext {
     /// An improved version of `performAndWait` that can return a value synchronously.
-    func performAndWait<T>(_ block: () throws -> T) throws -> T {
+    public func performAndWait<T>(_ block: () throws -> T) throws -> T {
         var result: Result<T, Error>?
         performAndWait {
             result = Result { try block() }
@@ -90,7 +90,7 @@ extension NSManagedObjectContext {
     }
 
     /// An improved version of `performAndWait` that can return a value synchronously.
-    func performAndWait<T>(_ block: () -> T) -> T {
+    public func performAndWait<T>(_ block: () -> T) -> T {
         var result: T?
         performAndWait {
             result = block()
