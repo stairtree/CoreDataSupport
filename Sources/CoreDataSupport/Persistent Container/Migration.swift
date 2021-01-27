@@ -18,14 +18,8 @@ public func migrateStore<Version: ModelVersion>(from sourceURL: URL, to targetUR
     guard let sourceVersion = Version(storeURL: sourceURL) else { fatalError("unknown store version at URL \(sourceURL)") }
     var currentURL = sourceURL
     let migrationSteps = sourceVersion.migrationSteps(to: targetVersion)
-    var migrationProgress: Progress?
-    if let p = progress {
-        if #available(OSX 10.11, *) {
-            migrationProgress = Progress(totalUnitCount: Int64(migrationSteps.count), parent: p, pendingUnitCount: p.totalUnitCount)
-        } else {
-            // FIXME: This doesn't work probably
-            p.becomeCurrent(withPendingUnitCount: Int64(migrationSteps.count))
-        }
+    let migrationProgress = progress.map {
+        Progress(totalUnitCount: Int64(migrationSteps.count), parent: $0, pendingUnitCount: $0.totalUnitCount)
     }
     for step in migrationSteps {
         migrationProgress?.becomeCurrent(withPendingUnitCount: 1)
