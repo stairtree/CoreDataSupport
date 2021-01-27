@@ -19,6 +19,8 @@ public final class ManagedObjectObserver {
         case update
     }
     
+    private var token: NSObjectProtocol!
+    private var objectHasBeenDeleted: Bool = false
     private let notificationCenter: NotificationCenter
     
     public init?(object: Managed, notificationCenter nc: NotificationCenter = .default, changeHandler: @escaping (ChangeType) -> ()) {
@@ -38,10 +40,7 @@ public final class ManagedObjectObserver {
     
     // MARK: Private
     
-    fileprivate var token: NSObjectProtocol!
-    fileprivate var objectHasBeenDeleted: Bool = false
-    
-    fileprivate func changeType(of object: Managed, in note: ObjectsDidChangeNotification) -> ChangeType? {
+    private func changeType(of object: Managed, in note: ObjectsDidChangeNotification) -> ChangeType? {
         let deleted = note.deletedObjects.union(note.invalidatedObjects)
         if note.invalidatedAllObjects || deleted.contains(where: { $0 === object }) {
             return .delete

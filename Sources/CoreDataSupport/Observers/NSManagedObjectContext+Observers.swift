@@ -48,7 +48,7 @@ public struct ContextDidSaveNotification {
     
     fileprivate let notification: Notification
     
-    fileprivate func iterator(forKey key: String) -> AnyIterator<NSManagedObject> {
+    private func iterator(forKey key: String) -> AnyIterator<NSManagedObject> {
         guard let set = self.userInfo[key] as? NSSet else {
             return AnyIterator { nil }
         }
@@ -99,9 +99,9 @@ public struct ContextDidSaveObjectIDsNotification {
     
     // MARK: Private
     
-    fileprivate let notification: Notification
+    private let notification: Notification
     
-    fileprivate func objects(forKey key: String) -> Set<NSManagedObjectID> {
+    private func objects(forKey key: String) -> Set<NSManagedObjectID> {
         return (self.userInfo[key] as? Set<NSManagedObjectID>) ?? Set()
     }
 }
@@ -122,7 +122,7 @@ public struct ContextWillSaveNotification {
     
     // MARK: Private
     
-    fileprivate let notification: Notification
+    private let notification: Notification
 }
 
 public struct ObjectsDidChangeNotification {
@@ -176,9 +176,9 @@ public struct ObjectsDidChangeNotification {
     
     // MARK: Private
     
-    fileprivate let notification: Notification
+    private let notification: Notification
     
-    fileprivate func objects(forKey key: String) -> Set<NSManagedObject> {
+    private func objects(forKey key: String) -> Set<NSManagedObject> {
         return (self.userInfo[key] as? Set<NSManagedObject>) ?? Set()
     }
 }

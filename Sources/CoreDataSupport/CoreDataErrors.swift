@@ -14,8 +14,8 @@
 import CoreData
 
 struct ManagedObjectValidationError {
-    fileprivate let error: NSError
-    fileprivate var userInfo: [String: Any] { return error.userInfo }
+    private let error: NSError
+    private var userInfo: [String: Any] { return error.userInfo }
 
     init(error: NSError) {
         self.error = error

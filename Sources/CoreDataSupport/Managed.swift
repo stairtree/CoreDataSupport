@@ -128,7 +128,7 @@ extension Managed where Self: NSManagedObject {
         return result
     }
     
-    fileprivate static func fetchSingleObject(in context: NSManagedObjectContext, configure: (NSFetchRequest<Self>) -> ()) -> Self? {
+    private static func fetchSingleObject(in context: NSManagedObjectContext, configure: (NSFetchRequest<Self>) -> ()) -> Self? {
         let result = fetch(in: context) { request in
             configure(request)
             request.fetchLimit = 2
