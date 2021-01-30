@@ -2,28 +2,45 @@ import XCTest
 import CoreData
 @testable import CoreDataSupport
 
-final class ExtendedFetchedResultsControllerTests: XCTestCase {
+final class ExtendedFetchedResultsControllerTests: CoreDataTestCase {
     var observer: Any?
+
+    var milkyway: MOGalaxy!
+    var sun: MOStar!
+    var sirius: MOStar!
+    var arcturus: MOStar!
+    var earth: MOPlanet!
+    var moon: MOMoon!
+    var mars: MOPlanet!
+    var phobos: MOMoon!
+    var deimos: MOMoon!
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        
+        milkyway = MOGalaxy(context: container.viewContext)
+        milkyway.id = UUID()
+        milkyway.name = "Milky Way"
+        
+        sun = star("Sun", in: milkyway, container: container)
+        sirius = star("Sirius", in: milkyway, container: container)
+        arcturus = star("Arcturus", in: milkyway, container: container)
+        earth = planet("Earth", around: sun, container: container)
+        moon = moon("Moon", around: earth, container: container)
+        mars = planet("Mars", around: sun, container: container)
+        phobos = moon("Phobos", around: mars, container: container)
+        deimos = moon("Deimos", around: mars, container: container)
+        
+        try container.viewContext.save()
+    }
     
     override func tearDown() {
         observer = nil
+        container = nil
         super.tearDown()
     }
     
-    func testRelationshipChange() throws {
-        let container = try XCTUnwrap(TestPersistentContainer.testable(in: self, for: SolarSystemManagedObjectModel()))
-        
-        let milkyway = MOGalaxy(context: container.viewContext)
-        milkyway.id = UUID()
-        milkyway.name = "The Galaxy"
-        
-        let sun = MOStar(context: container.viewContext)
-        sun.id = UUID()
-        sun.name = "Sun"
-        sun.galaxy = milkyway
-
-        try container.viewContext.save()
-        
+    func testRelationshipPropertyChange() throws {
         let baseFetchRequest = MOGalaxy.fetchRequest() as! NSFetchRequest<MOGalaxy>
         baseFetchRequest.sortDescriptors = [.init(key: #keyPath(MOGalaxy.name), ascending: true)]
         
@@ -35,8 +52,9 @@ final class ExtendedFetchedResultsControllerTests: XCTestCase {
             managedObjectContext: container.viewContext,
             fetchRequest: fetchRequest)
 
-        observer = expectUpdate(in: frc) { object in
-            XCTAssertEqual(object, milkyway, "Expecting galaxy to receive update")
+        observer = expectUpdate(in: frc) { object, _, _ in
+            XCTAssertEqual(object, self.milkyway, "Expecting galaxy to receive update")
+            XCTAssertTrue(object.changedValues().isEmpty, "Expecting update but no changes on Galaxy")
         }
 
         try frc.performFetch()
@@ -47,45 +65,72 @@ final class ExtendedFetchedResultsControllerTests: XCTestCase {
         try container.viewContext.save()
         waitForExpectations(timeout: 3, handler: nil)
     }
-}
+    
+    func testRelationshipOrderChange() throws {
+        let baseFetchRequest = MOMoon.fetchRequest() as! NSFetchRequest<MOMoon>
+        baseFetchRequest.sortDescriptors = [
+            .init(key: #keyPath(MOMoon.planet.name), ascending: true),
+            .init(key: #keyPath(MOMoon.name), ascending: true),
+        ]
+        
+        let fetchRequest = ExtendedFetchRequest(
+            request: baseFetchRequest,
+            relationshipKeyPaths: [#keyPath(MOMoon.planet.name)])
+        
+        let frc = ExtendedFetchedResultsController<MOMoon>(
+            managedObjectContext: container.viewContext,
+            fetchRequest: fetchRequest)
 
-final class ExtendedFetchedResultsControllerObserver<EntityType: NSFetchRequestResult>: NSObject, FetchedResultsControllerDelegate {
-    private weak var fetchedResultsController: ExtendedFetchedResultsController<EntityType>!
-    private let handler: (Event) -> Void
-    
-    public enum Event {
-        case willChangeContent
-        case updateWithChange(_ change: WrappedNSFetchedResultsController<EntityType>.ChangeType)
-        case didChangeContent
-    }
-    
-    public init(_ frc: ExtendedFetchedResultsController<EntityType>, handler: @escaping (Event) -> Void) {
-        self.fetchedResultsController = frc
-        self.handler = handler
-        super.init()
-        frc.delegate = self
-    }
-    
-    func willChangeContent<T>(_ controller: WrappedNSFetchedResultsController<T>) where T: NSFetchRequestResult {
-        handler(.willChangeContent)
-    }
-    
-    func updateWithChange<T>(_ controller: WrappedNSFetchedResultsController<T>, change: WrappedNSFetchedResultsController<T>.ChangeType) where T: NSFetchRequestResult {
-        handler(.updateWithChange(change as! WrappedNSFetchedResultsController<EntityType>.ChangeType))
-    }
-    
-    func didChangeContent<T>(_ controller: WrappedNSFetchedResultsController<T>) where T: NSFetchRequestResult {
-        handler(.didChangeContent)
+        observer = expectUpdate(in: frc) { object, atIndex, progressiveChangeIndex  in
+            XCTAssertEqual(object, self.moon, "Expecting moon to receive update")
+            XCTAssertEqual(frc.fetchedObjects.map(\.name), [self.deimos.name, self.phobos.name, self.moon.name])
+            // FIXME: We need to make sure the frc reports the proper indix changes
+        }
+
+        try frc.performFetch()
+        // Result is ordered by planet's name first, then the moon's name
+        // Moon, Deimos, Phobos
+        
+        // This should change the order to
+        // Deimos, Phobos, Moon
+        earth.name = "Z"
+        
+        try container.viewContext.save()
+        
+        waitForExpectations(timeout: 3, handler: nil)
     }
 }
 
 extension XCTestCase {
-
-    func expectUpdate<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType) -> Void) -> ExtendedFetchedResultsControllerObserver<EntityType> where EntityType: NSFetchRequestResult {
+    func star(_ name: String, in galaxy: MOGalaxy, container: NSPersistentContainer) -> MOStar {
+        let s = MOStar(context: container.viewContext)
+        s.id = UUID()
+        s.name = name
+        s.galaxy = galaxy
+        return s
+    }
+    func planet(_ name: String, around star: MOStar, container: NSPersistentContainer) -> MOPlanet {
+        let p = MOPlanet(context: container.viewContext)
+        p.id = UUID()
+        p.name = name
+        p.star = star
+        return p
+    }
+    func moon(_ name: String, around planet: MOPlanet, container: NSPersistentContainer) -> MOMoon {
+        let m = MOMoon(context: container.viewContext)
+        m.id = UUID()
+        m.name = name
+        m.craters = Int.random(in: 0..<100)
+        m.comets = Int.random(in: 0..<5)
+        m.planet = planet
+        return m
+    }
+    
+    func expectUpdate<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType, Int, Int) -> Void) -> ExtendedFetchedResultsControllerObserver<EntityType> where EntityType: NSFetchRequestResult {
         let e = expectation(description: "update")
         return ExtendedFetchedResultsControllerObserver(frc) { event in
-            if case let .updateWithChange(change) = event, case let .update(object: object, atIndex: _, progressiveChangeIndex: _) = change {
-                expect(object)
+            if case let .updateWithChange(change) = event, case let .update(object: object, atIndex: atIndex, progressiveChangeIndex: progressiveChangeIndex) = change {
+                expect(object, atIndex, progressiveChangeIndex)
                 e.fulfill()
             }
         }
