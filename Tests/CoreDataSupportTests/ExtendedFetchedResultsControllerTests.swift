@@ -84,7 +84,7 @@ final class ExtendedFetchedResultsControllerTests: CoreDataTestCase {
         observer = expectUpdate(in: frc) { object, atIndex, progressiveChangeIndex  in
             XCTAssertEqual(object, self.moon, "Expecting moon to receive update")
             XCTAssertEqual(frc.fetchedObjects.map(\.name), [self.deimos.name, self.phobos.name, self.moon.name])
-            // FIXME: We need to make sure the frc reports the proper indix changes
+            // FIXME: We need to make sure the frc reports the proper index changes
         }
 
         try frc.performFetch()
