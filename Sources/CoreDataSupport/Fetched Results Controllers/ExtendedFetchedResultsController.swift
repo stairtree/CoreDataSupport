@@ -111,6 +111,10 @@ extension Set where Element: NSManagedObject {
                 }
             } else if let toOneObject = value as? NSManagedObject {
                 objectIDs.insert(toOneObject.objectID)
+            } else if let toManyOrderedObjects = value as? NSMutableOrderedSet {
+                toManyOrderedObjects.forEach {
+                    objectIDs.insert(($0 as! NSManagedObject).objectID)
+                }
             } else {
                 assertionFailure("Invalid relationship observed for keyPath: \(changedRelationshipKeyPath)")
                 return
