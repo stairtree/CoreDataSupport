@@ -79,14 +79,11 @@ final class ExtendedFetchedResultsControllerTests: CoreDataTestCase {
         let frc = ExtendedFetchedResultsController<MOMoon>(
             managedObjectContext: container.viewContext,
             fetchRequest: fetchRequest)
-
-        // Until the observer is fixed to allow for multiple instanes for the same frc
-        // this is not possible. The last observation always unhooks the delegate of the previous
         
-        // observers.append(expectUpdate(in: frc) { object, atIndex, progressiveChangeIndex  in
-        //     XCTAssertEqual(object, self.moon, "Expecting moon to receive update")
-        //     XCTAssertEqual(frc.fetchedObjects.map(\.name), [self.deimos.name, self.phobos.name, self.moon.name])
-        // })
+         observers.append(expectUpdate(in: frc) { object, atIndex, progressiveChangeIndex  in
+             XCTAssertEqual(object, self.moon, "Expecting moon to receive update")
+             XCTAssertEqual(frc.fetchedObjects.map(\.name), [self.deimos.name, self.phobos.name, self.moon.name])
+         })
         
         observers.append(expectMove(in: frc) { object, fromIndex, toIndex, progressiveChangeIndex in
             XCTAssertEqual(object, self.moon, "Expecting moon to receive move")
@@ -133,10 +130,9 @@ extension XCTestCase {
         return m
     }
     
-    func expectUpdate<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType, IndexPath, IndexPath) -> Void) -> ExtendedFetchedResultsControllerObserver<EntityType> where EntityType: NSFetchRequestResult {
+    func expectUpdate<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType, IndexPath, IndexPath) -> Void) -> ExtendedFetchedResultsControllerObservation where EntityType: NSFetchRequestResult {
         let e = expectation(description: "update-\(UUID().uuidString)")
-        return ExtendedFetchedResultsControllerObserver(frc) { event in
-            print(event)
+        return ExtendedFetchedResultsControllerObservation(frc) { event in
             if case let .updateWithChange(change) = event, case let .update(object: object, at: atIndex, progressiveChangeIndexPath: progressiveChangeIndexPath) = change {
                 expect(object, atIndex, progressiveChangeIndexPath)
                 e.fulfill()
@@ -144,10 +140,9 @@ extension XCTestCase {
         }
     }
     
-    func expectMove<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType, IndexPath, IndexPath, IndexPath) -> Void) -> ExtendedFetchedResultsControllerObserver<EntityType> where EntityType: NSFetchRequestResult {
+    func expectMove<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType, IndexPath, IndexPath, IndexPath) -> Void) -> ExtendedFetchedResultsControllerObservation where EntityType: NSFetchRequestResult {
         let e = expectation(description: "move-\(UUID().uuidString)")
-        return ExtendedFetchedResultsControllerObserver(frc) { event in
-            print(event)
+        return ExtendedFetchedResultsControllerObservation(frc) { event in
             if case let .updateWithChange(change) = event, case let .move(object: object, from: fromIndex, to: toIndex, progressiveChangeIndexPath: progressiveChangeIndexPath) = change {
                 expect(object, fromIndex, toIndex, progressiveChangeIndexPath)
                 e.fulfill()
