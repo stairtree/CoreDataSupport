@@ -3,7 +3,7 @@ import CoreData
 @testable import CoreDataSupport
 
 final class ExtendedFetchedResultsControllerTests: CoreDataTestCase {
-    var observer: Any?
+    var observers: [Any] = []
 
     var milkyway: MOGalaxy!
     var sun: MOStar!
@@ -35,8 +35,7 @@ final class ExtendedFetchedResultsControllerTests: CoreDataTestCase {
     }
     
     override func tearDown() {
-        observer = nil
-        container = nil
+        observers = []
         super.tearDown()
     }
     
@@ -52,10 +51,10 @@ final class ExtendedFetchedResultsControllerTests: CoreDataTestCase {
             managedObjectContext: container.viewContext,
             fetchRequest: fetchRequest)
 
-        observer = expectUpdate(in: frc) { object, _, _ in
+        observers.append(expectUpdate(in: frc) { object, _, _ in
             XCTAssertEqual(object, self.milkyway, "Expecting galaxy to receive update")
             XCTAssertTrue(object.changedValues().isEmpty, "Expecting update but no changes on Galaxy")
-        }
+        })
 
         try frc.performFetch()
         
@@ -81,11 +80,19 @@ final class ExtendedFetchedResultsControllerTests: CoreDataTestCase {
             managedObjectContext: container.viewContext,
             fetchRequest: fetchRequest)
 
-        observer = expectUpdate(in: frc) { object, atIndex, progressiveChangeIndex  in
-            XCTAssertEqual(object, self.moon, "Expecting moon to receive update")
-            XCTAssertEqual(frc.fetchedObjects.map(\.name), [self.deimos.name, self.phobos.name, self.moon.name])
-            // FIXME: We need to make sure the frc reports the proper index changes
-        }
+        // Until the observer is fixed to allow for multiple instanes for the same frc
+        // this is not possible. The last observation always unhooks the delegate of the previous
+        
+        // observers.append(expectUpdate(in: frc) { object, atIndex, progressiveChangeIndex  in
+        //     XCTAssertEqual(object, self.moon, "Expecting moon to receive update")
+        //     XCTAssertEqual(frc.fetchedObjects.map(\.name), [self.deimos.name, self.phobos.name, self.moon.name])
+        // })
+        
+        observers.append(expectMove(in: frc) { object, fromIndex, toIndex, progressiveChangeIndex in
+            XCTAssertEqual(object, self.moon, "Expecting moon to receive move")
+            XCTAssertEqual(fromIndex.item, 0)
+            XCTAssertEqual(toIndex.item, 2)
+        })
 
         try frc.performFetch()
         // Result is ordered by planet's name first, then the moon's name
@@ -126,11 +133,23 @@ extension XCTestCase {
         return m
     }
     
-    func expectUpdate<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType, Int, Int) -> Void) -> ExtendedFetchedResultsControllerObserver<EntityType> where EntityType: NSFetchRequestResult {
-        let e = expectation(description: "update")
+    func expectUpdate<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType, IndexPath, IndexPath) -> Void) -> ExtendedFetchedResultsControllerObserver<EntityType> where EntityType: NSFetchRequestResult {
+        let e = expectation(description: "update-\(UUID().uuidString)")
         return ExtendedFetchedResultsControllerObserver(frc) { event in
-            if case let .updateWithChange(change) = event, case let .update(object: object, atIndex: atIndex, progressiveChangeIndex: progressiveChangeIndex) = change {
-                expect(object, atIndex, progressiveChangeIndex)
+            print(event)
+            if case let .updateWithChange(change) = event, case let .update(object: object, at: atIndex, progressiveChangeIndexPath: progressiveChangeIndexPath) = change {
+                expect(object, atIndex, progressiveChangeIndexPath)
+                e.fulfill()
+            }
+        }
+    }
+    
+    func expectMove<EntityType>(in frc: ExtendedFetchedResultsController<EntityType>, _ expect: @escaping (EntityType, IndexPath, IndexPath, IndexPath) -> Void) -> ExtendedFetchedResultsControllerObserver<EntityType> where EntityType: NSFetchRequestResult {
+        let e = expectation(description: "move-\(UUID().uuidString)")
+        return ExtendedFetchedResultsControllerObserver(frc) { event in
+            print(event)
+            if case let .updateWithChange(change) = event, case let .move(object: object, from: fromIndex, to: toIndex, progressiveChangeIndexPath: progressiveChangeIndexPath) = change {
+                expect(object, fromIndex, toIndex, progressiveChangeIndexPath)
                 e.fulfill()
             }
         }

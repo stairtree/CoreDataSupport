@@ -22,10 +22,10 @@ public protocol FetchedResultsControllerDelegate: AnyObject {
 public class WrappedNSFetchedResultsController<EntityType: NSFetchRequestResult>: NSObject, NSFetchedResultsControllerDelegate {
 
     public enum ChangeType {
-        case insert(object: EntityType, atIndex: Int)
-        case update(object: EntityType, atIndex: Int, progressiveChangeIndex: Int)
-        case move(object: EntityType, fromIndex: Int, toIndex: Int, progressiveChangeIndex: Int)
-        case delete(object: EntityType, atIndex: Int, progressiveChangeIndex: Int)
+        case insert(object: EntityType, at: IndexPath)
+        case update(object: EntityType, at: IndexPath, progressiveChangeIndexPath: IndexPath)
+        case move(object: EntityType, from: IndexPath, to: IndexPath, progressiveChangeIndexPath: IndexPath)
+        case delete(object: EntityType, at: IndexPath, progressiveChangeIndexPath: IndexPath)
     }
 
     private let realController: NSFetchedResultsController<EntityType>
@@ -60,30 +60,30 @@ public class WrappedNSFetchedResultsController<EntityType: NSFetchRequestResult>
             case .insert:
                 self.delegate?.updateWithChange(self, change: .insert(
                     object: anObject as! EntityType,
-                    atIndex: newIndexPath!.first!
+                    at: newIndexPath!
                 ))
                 
             case .move, .update:
                 // The old implementation sent "update, move" for moves
                 self.delegate?.updateWithChange(self, change: .update(
                     object: anObject as! EntityType,
-                    atIndex: indexPath!.first!, // atIndex is IGNORED
-                    progressiveChangeIndex: indexPath!.first! // pIndex is used as "index to reloadData at"
+                    at: indexPath!, // atIndex is IGNORED
+                    progressiveChangeIndexPath: indexPath! // pIndex is used as "index to reloadData at"
                 ))
                 
                 if type == .move {
                     self.delegate?.updateWithChange(self, change: .move(
                         object: anObject as! EntityType,
-                        fromIndex: indexPath!.first!, // fromIndex is IGNORED
-                        toIndex: newIndexPath!.first!, // toIndex is used as "index moved to"
-                        progressiveChangeIndex: indexPath!.first! // pIndex is used as "index moved from"
+                        from: indexPath!, // fromIndex is IGNORED
+                        to: newIndexPath!, // toIndex is used as "index moved to"
+                        progressiveChangeIndexPath: indexPath! // pIndex is used as "index moved from"
                     ))
                 }
             case .delete:
                 self.delegate?.updateWithChange(self, change: .delete(
                     object: anObject as! EntityType,
-                    atIndex: indexPath!.first!, // atIndex is IGNORED
-                    progressiveChangeIndex: indexPath!.first! // pIndex is used as "index to delete"
+                    at: indexPath!, // atIndex is IGNORED
+                    progressiveChangeIndexPath: indexPath! // pIndex is used as "index to delete"
                 ))
                 
             @unknown default:
