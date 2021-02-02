@@ -14,6 +14,12 @@
 import Foundation
 
 extension NSPredicate {
+    /// Equivalent to `NSPredicate(value: true)`
+    public static var `true`: NSPredicate = .init(value: true)
+    
+    /// Equivalent to `NSPredicate(value: false)`
+    public static var `false`: NSPredicate = .init(value: false)
+    
     /// Predicate for checking if keyPath is `true`
     /// - Parameter keyPath: `@objc` keyPath
     /// - Returns: Predicate for checking if keyPath evaluates to `true`
@@ -28,9 +34,10 @@ extension NSPredicate {
         .init(format: "%K = %d", keyPath, false)
     }
     
-    /// Equivalent to `NSPredicate(value: true)`
-    public static var `true`: NSPredicate = .init(value: true)
-    
-    /// Equivalent to `NSPredicate(value: false)`
-    public static var `false`: NSPredicate = .init(value: false)
+    /// Predicate for checking if keyPath is `NULL`
+    /// - Parameter keyPath: `@objc` keyPath
+    /// - Returns: Predicate for checking if keyPath evaluates to `NULL`
+    public static func isNull(_ keyPath: String) -> NSPredicate {
+        .init(format: "%K = NULL", keyPath)
+    }
 }
