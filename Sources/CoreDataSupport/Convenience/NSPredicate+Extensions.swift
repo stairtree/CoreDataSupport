@@ -40,4 +40,11 @@ extension NSPredicate {
     public static func isNull(_ keyPath: String) -> NSPredicate {
         .init(format: "%K = NULL", keyPath)
     }
+    
+    /// Predicate for checking if keyPath is not `NULL`
+    /// - Parameter keyPath: `@objc` keyPath
+    /// - Returns: Predicate for checking if keyPath is not `NULL`
+    public static func isNotNull(_ keyPath: String) -> NSPredicate {
+        .init(format: "%K != NULL", keyPath)
+    }
 }
