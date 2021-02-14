@@ -10,13 +10,13 @@ class CoreDataTestCase: XCTestCase {
         
         container = ModelCachingPersistentContainer(name: "CoreDataTestCase", managedObjectModel: SolarSystemManagedObjectModel())
         let description = NSPersistentStoreDescription()
-        description.type = NSInMemoryStoreType
+        description.url = URL(fileURLWithPath: "/dev/null")
         description.shouldAddStoreAsynchronously = false
         container.persistentStoreDescriptions = [description]
 
         let descriptions = try XCTUnwrap(container.loadPersistentStores())
         
-        XCTAssertEqual(descriptions.first?.type, NSInMemoryStoreType)
+        XCTAssertEqual(descriptions.first?.type, NSSQLiteStoreType)
     }
 
     override func tearDown() {
